@@ -15,7 +15,7 @@ class PlugSocket {
     _plugs = plugs.reversed.toList();
     _runAppCalled = true;
 
-    identityRunner() async => material.runApp(await _plugs.reversed.toList().plugApp(appBuilder()));
+    identityRunner() async => material.runApp(await _plugs.toList().plugApp(appBuilder()));
     _plugs.plugAppRunner(identityRunner)();
   }
 
@@ -29,6 +29,12 @@ class PlugSocket {
     assert(_runAppCalled);
 
     return _plugs.plugNavigator(context, child);
+  }
+
+  static Widget page(BuildContext context, Widget child) {
+    assert(_runAppCalled);
+
+    return _plugs.plugPage(context, child);
   }
 }
 
@@ -57,6 +63,14 @@ extension on List<Plug> {
     return fold(child, (previous, plug) {
       return Builder(
         builder: (context) => plug.navigatorPlug(context, previous),
+      );
+    });
+  }
+
+  Widget plugPage(BuildContext context, Widget child) {
+    return fold(child, (previous, plug) {
+      return Builder(
+        builder: (context) => plug.pagePlug(context, previous),
       );
     });
   }
