@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide runApp;
 import 'package:flutter/material.dart' as material show runApp;
 import 'package:plugger/src/models/plug.dart';
+import 'package:collection/collection.dart';
 
 class PlugSocket {
   static late List<Plug> _plugs;
@@ -46,8 +47,12 @@ extension on List<Plug> {
   }
 
   FutureOr<Widget> plugApp(FutureOr<Widget> child) async {
-    return fold(child, (previous, plug) async {
-      return plug.appPlug(await previous);
+    final plugWiring = map((plug) => plug.appPlug());
+
+    await Future.wait(plugWiring.map((p) => p.init?.call()).whereNotNull());
+
+    return plugWiring.fold(child, (previous, wiring) async {
+      return wiring.wrapper(await previous);
     });
   }
 
