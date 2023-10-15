@@ -2,28 +2,23 @@ import 'dart:async';
 
 import 'package:flutter/material.dart' hide runApp;
 import 'package:flutter/material.dart' as material show runApp;
-import 'package:plugger/src/models/plug.dart';
+import 'package:plugger/src/plug.dart';
 import 'package:collection/collection.dart';
 
-class PlugSocket {
+class Plugger {
   static late List<Plug> _plugs;
   static bool _runAppCalled = false;
 
-  static FutureOr<void> runApp({
-    required FutureOr<Widget> Function() appBuilder,
+  static FutureOr<void> runApp(
+    Widget app, {
     List<Plug> plugs = const [],
   }) async {
     _plugs = plugs.reversed.toList();
     _runAppCalled = true;
 
-    identityRunner() async => material.runApp(await _plugs.toList().plugApp(appBuilder()));
+    final pluggedApp = await _plugs.toList().plugApp(app);
+    identityRunner() async => material.runApp(pluggedApp);
     _plugs.plugAppRunner(identityRunner)();
-  }
-
-  static Widget materialApp(BuildContext context, MaterialApp child) {
-    assert(_runAppCalled);
-
-    return _plugs.plugMaterialApp(context, child);
   }
 
   static Widget navigator(BuildContext context, Widget child) {
@@ -53,14 +48,6 @@ extension on List<Plug> {
 
     return plugWiring.fold(child, (previous, wiring) async {
       return wiring.wrapper(await previous);
-    });
-  }
-
-  Widget plugMaterialApp(BuildContext context, MaterialApp child) {
-    return fold(child, (previous, plug) {
-      return Builder(
-        builder: (context) => plug.materialAppPlug(context, previous),
-      );
     });
   }
 
