@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide runApp;
 import 'package:flutter/material.dart' as material show runApp;
 import 'package:plugger/src/plug.dart';
-import 'package:collection/collection.dart';
 
 class Plugger {
   static late List<Plug> _plugs;
@@ -44,7 +43,8 @@ extension on List<Plug> {
   FutureOr<Widget> plugApp(FutureOr<Widget> child) async {
     final plugWiring = map((plug) => plug.appPlug());
 
-    await Future.wait(plugWiring.map((p) => p.init?.call()).whereNotNull());
+    final initFutures = plugWiring.map((p) => p.init?.call()).whereType<Future<dynamic>>();
+    await Future.wait(initFutures);
 
     return plugWiring.fold(child, (previous, wiring) async {
       return wiring.wrapper(await previous);

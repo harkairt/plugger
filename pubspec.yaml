@@ -1,5 +1,6 @@
 name: plugger
 description: A Flutter package which helps to encapsulate app configurations.
+repository: https://github.com/harkairt/plugger
 version: 0.0.1
 
 environment:
@@ -7,7 +8,6 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
-  collection:
   flutter:
     sdk: flutter
 
